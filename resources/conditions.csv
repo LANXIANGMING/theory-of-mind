@@ -1,0 +1,13 @@
+trialNum,taskNum,qnNum,controlQn,testQn,qnText,corrAns1,corrAns2
+1,2,1,1,NA,What does Becky want?,cookie,NA
+2,2,2,NA,2,How will Becky feel if she gets a cookie?,happy,NA
+3,3,1,NA,3,Where does Amy think her glasses are?,table,NA
+4,4,1,2,NA,Where did Jack put the book?,table,NA
+5,4,2,3,NA,Where is the book now?,drawer,NA
+6,4,3,NA,4,Where will Jack look for the book first?,table,NA
+7,5,1,4,NA,What does Tom want?,airplane,NA
+8,5,2,5,NA,What does Tom think his Dad got him?,airplane,NA
+9,5,3,NA,5,"If Tom thinks his Dad got him an airplane, how will Tom feel?",happy,NA
+10,5,4,6,NA,What does Dad think Tom wants?,train,NA
+11,5,6,NA,6,How will Tom feel when his Dad gives him the train?,sad,mad
+12,5,7,NA,7,"When Dad gives Tom the train, how does Dad think Tom will feel?",happy,NA
