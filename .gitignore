@@ -1,5 +1,6 @@
+dev/
 dev-*/
-src/
 *.bat
-*.psyexp
+*.map
 *.py
+
