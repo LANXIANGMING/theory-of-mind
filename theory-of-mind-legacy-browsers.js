@@ -234,8 +234,7 @@ var MOUSE_L_prev;
 var SOUND;
 var q_slides;
 var trialClock;
-var Y_OFFSET;
-var offset;
+var y_offset;
 var control_scores;
 var current_total_score;
 var SLIDE_GROUPS;
@@ -245,7 +244,7 @@ var routineTimer;
 async function experimentInit() {
   // Initialize components for Routine "begin"
   beginClock = new util.Clock();
-  expVersion = "2022.09.22";
+  expVersion = "2022.09.23";
   AUD_DIR = "resources/aud";
   IMGS_DIR = "resources/imgs";
   SLIDES_DIR = `${IMGS_DIR}/slides`;
@@ -334,8 +333,7 @@ async function experimentInit() {
   
   // Initialize components for Routine "trial"
   trialClock = new util.Clock();
-  Y_OFFSET = (- 0.02);
-  offset = Y_OFFSET;
+  y_offset = (- 0.02);
   control_scores = [];
   current_total_score = 0;
   SLIDE_GROUPS = [null, [1, 2], [3], [4, 5], [6, 7, 8, 9, 10, 11], [12], [13], [14, 15, 16, 17, 18], [19], [20], [21, 22], [23], [24]];
@@ -477,6 +475,7 @@ async function trialsLoopEnd() {
 
 var cimg_names;
 var mouse_over;
+var slide_t;
 var response;
 var response_time;
 var slide_nums;
@@ -504,6 +503,7 @@ function trialRoutineBegin(snapshot) {
     cimgs = null;
     cimg_names = [];
     mouse_over = "_";
+    slide_t = 0;
     response = null;
     response_time = null;
     slide_nums = SLIDE_GROUPS[Number.parseInt(trialNum)];
@@ -587,22 +587,23 @@ function trialRoutineEachFrame() {
         }
     }
     if (((cimgs === null) && ((n_slides - idx) === 1))) {
+        slide_t = t;
         cimgs = q_slides[slides[idx].name]();
-        offset = Y_OFFSET;
+        y_offset = (- 0.02);
         if ((slides[idx].name === "slide-03")) {
-            offset = 0.02;
+            y_offset = 0.02;
         }
         for (var i, _pj_c = 0, _pj_a = [20, 23, 24], _pj_b = _pj_a.length; (_pj_c < _pj_b); _pj_c += 1) {
             i = _pj_a[_pj_c];
             if ((slides[idx].name === `slide-${i}`)) {
-                offset = (- 0.01);
+                y_offset = (- 0.01);
                 break;
             }
         }
-        radio0s = make_radios(make_radio0, cimgs.slice(0, 2), [], offset);
-        radio0s = make_radios(make_radio0, cimgs.slice(2), radio0s, offset);
-        radio1s = make_radios(make_radio1, cimgs.slice(0, 2), [], offset);
-        radio1s = make_radios(make_radio1, cimgs.slice(2), radio1s, offset);
+        radio0s = make_radios(make_radio0, cimgs.slice(0, 2), [], y_offset);
+        radio0s = make_radios(make_radio0, cimgs.slice(2), radio0s, y_offset);
+        radio1s = make_radios(make_radio1, cimgs.slice(0, 2), [], y_offset);
+        radio1s = make_radios(make_radio1, cimgs.slice(2), radio1s, y_offset);
         for (var i, _pj_c = 0, _pj_a = util.range(cimgs.length), _pj_b = _pj_a.length; (_pj_c < _pj_b); _pj_c += 1) {
             i = _pj_a[_pj_c];
             radio0s[i].autoDraw = true;
@@ -622,7 +623,7 @@ function trialRoutineEachFrame() {
                     i = _pj_a[_pj_c];
                     if ((cimgs[i].contains(MOUSE) || radio0s[i].contains(MOUSE))) {
                         response = cimgs[i].name;
-                        response_time = t;
+                        response_time = (t - slide_t);
                         NEXT.opacity = 1;
                     }
                     for (var radio, _pj_f = 0, _pj_d = radio1s, _pj_e = _pj_d.length; (_pj_f < _pj_e); _pj_f += 1) {
