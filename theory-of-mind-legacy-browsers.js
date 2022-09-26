@@ -5,7 +5,7 @@
 
 // store info about the experiment session:
 let expName = 'theory-of-mind';  // from the Builder filename that created this script
-let expInfo = {'ID': '', 'Audio': ['Yes', 'No'], 'Debug': ['No', 'Yes']};
+let expInfo = {'ID': '', 'Audio': ['Yes', 'No'], 'Debug': ['No', 'Yes'], 'Show boxes': ['No', 'Yes']};
 
 // Start code blocks for 'Before Experiment'
 
@@ -132,6 +132,7 @@ psychoJS.start({
   expName: expName,
   expInfo: expInfo,
   resources: [
+    {'name': 'resources/aud/slide-00-title.m4a', 'path': 'resources/aud/slide-00-title.m4a'},
     {'name': 'resources/aud/slide-01.m4a', 'path': 'resources/aud/slide-01.m4a'},
     {'name': 'resources/aud/slide-02.m4a', 'path': 'resources/aud/slide-02.m4a'},
     {'name': 'resources/aud/slide-03.m4a', 'path': 'resources/aud/slide-03.m4a'},
@@ -156,6 +157,8 @@ psychoJS.start({
     {'name': 'resources/aud/slide-22.m4a', 'path': 'resources/aud/slide-22.m4a'},
     {'name': 'resources/aud/slide-23.m4a', 'path': 'resources/aud/slide-23.m4a'},
     {'name': 'resources/aud/slide-24.m4a', 'path': 'resources/aud/slide-24.m4a'},
+    {'name': 'resources/imgs/next.png', 'path': 'resources/imgs/next.png'},
+    {'name': 'resources/imgs/slides/slide-00-title.png', 'path': 'resources/imgs/slides/slide-00-title.png'},
     {'name': 'resources/imgs/slides/slide-01.png', 'path': 'resources/imgs/slides/slide-01.png'},
     {'name': 'resources/imgs/slides/slide-02.png', 'path': 'resources/imgs/slides/slide-02.png'},
     {'name': 'resources/imgs/slides/slide-03.png', 'path': 'resources/imgs/slides/slide-03.png'},
@@ -216,7 +219,9 @@ var SLIDES_DIR;
 var SEQ_FILE;
 var SHOW_DEBUG;
 var USE_AUDIO;
+var SHOW_BOUND_BOX;
 var CLICK_BOX_OPACITY;
+var BOUND_BOX_OPACITY;
 var SLIDE_H;
 var SLIDE_W;
 var SLIDE_SIZE;
@@ -233,6 +238,7 @@ var MOUSE_L;
 var MOUSE_L_prev;
 var SOUND;
 var q_slides;
+var begin_text;
 var trialClock;
 var y_offset;
 var control_scores;
@@ -244,14 +250,16 @@ var routineTimer;
 async function experimentInit() {
   // Initialize components for Routine "begin"
   beginClock = new util.Clock();
-  expVersion = "2022.09.23";
+  expVersion = "2022.09.26";
   AUD_DIR = "resources/aud";
   IMGS_DIR = "resources/imgs";
   SLIDES_DIR = `${IMGS_DIR}/slides`;
   SEQ_FILE = "resources/seqs/conditions.csv";
   SHOW_DEBUG = (expInfo["Debug"] === "Yes");
   USE_AUDIO = (expInfo["Audio"] === "Yes");
+  SHOW_BOUND_BOX = (expInfo["Show boxes"] === "Yes");
   CLICK_BOX_OPACITY = (SHOW_DEBUG ? 0.2 : 0);
+  BOUND_BOX_OPACITY = (SHOW_BOUND_BOX ? 1 : 0);
   /*
   Slides are 1001 x 563 pixels.
   Positions and sizes of clickable areas are hard
@@ -261,8 +269,8 @@ async function experimentInit() {
   SLIDE_W = ((SLIDE_H / 563) * 1001);
   SLIDE_SIZE = [SLIDE_W, SLIDE_H];
   NEXT_POS = [0, (- 0.38)];
-  NEXT_SIZE = [0.215, 0.1];
-  NEXT = make_button("next", "Next", NEXT_POS, NEXT_SIZE);
+  NEXT_SIZE = [((0.1 / 127) * 192), 0.1];
+  NEXT = make_img("next", `${IMGS_DIR}/next.png`, NEXT_POS, NEXT_SIZE, null);
   REPLAY_POS = [(- 0.376), 0.265];
   REPLAY_SIZE = [0.165, 0.075];
   REPLAY = make_rect("replay", REPLAY_POS, REPLAY_SIZE, CLICK_BOX_OPACITY);
@@ -331,6 +339,17 @@ async function experimentInit() {
   }
   q_slides = {"slide-02": get_slide02, "slide-03": get_slide03, "slide-05": get_slide05, "slide-11": get_slide11, "slide-12": get_slide11, "slide-13": get_slide11, "slide-18": get_slide18, "slide-19": get_slide18, "slide-20": get_slide20, "slide-22": get_slide22, "slide-23": get_slide23, "slide-24": get_slide23};
   
+  begin_text = new visual.TextStim({
+    win: psychoJS.window,
+    name: 'begin_text',
+    text: '',
+    font: 'Open Sans',
+    units: undefined, 
+    pos: [0.6, 0], height: 0.02,  wrapWidth: undefined, ori: 0.0,
+    color: new util.Color('black'),  opacity: undefined,
+    depth: -3.0 
+  });
+  
   // Initialize components for Routine "trial"
   trialClock = new util.Clock();
   y_offset = (- 0.02);
@@ -360,6 +379,10 @@ async function experimentInit() {
 var t;
 var frameN;
 var continueRoutine;
+var slide;
+var aud_file;
+var SOUND_DUR;
+var SOUND_T;
 var beginComponents;
 function beginRoutineBegin(snapshot) {
   return async function () {
@@ -371,8 +394,21 @@ function beginRoutineBegin(snapshot) {
     frameN = -1;
     continueRoutine = true; // until we're told otherwise
     // update component parameters for each repeat
+    slide = make_slide(`slide-00-title`);
+    slide.autoDraw = true;
+    NEXT.pos = [0, (- 0.2)];
+    NEXT.autoDraw = true;
+    if (USE_AUDIO) {
+        aud_file = `${AUD_DIR}/slide-00-title.m4a`;
+        SOUND = make_sound("slide-00-title", aud_file);
+        SOUND_DUR = SOUND.getDuration();
+        SOUND_T = 0;
+        SOUND.play();
+    }
+    
     // keep track of which components have finished
     beginComponents = [];
+    beginComponents.push(begin_text);
     
     beginComponents.forEach( function(thisComponent) {
       if ('status' in thisComponent)
@@ -390,6 +426,24 @@ function beginRoutineEachFrame() {
     t = beginClock.getTime();
     frameN = frameN + 1;// number of completed frames (so 0 is the first frame)
     // update/draw components on each frame
+    MOUSE_L = MOUSE.getPressed()[0];
+    if ((MOUSE_L_prev !== MOUSE_L)) {
+        MOUSE_L_prev = MOUSE_L;
+        if (((MOUSE_L === 1) && NEXT.contains(MOUSE))) {
+            continueRoutine = false;
+        }
+    }
+    
+    
+    // *begin_text* updates
+    if (t >= 0.0 && begin_text.status === PsychoJS.Status.NOT_STARTED) {
+      // keep track of start time/frame for later
+      begin_text.tStart = t;  // (not accounting for frame time here)
+      begin_text.frameNStart = frameN;  // exact frame index
+      
+      begin_text.setAutoDraw(true);
+    }
+
     // check for quit (typically the Esc key)
     if (psychoJS.experiment.experimentEnded || psychoJS.eventManager.getKeys({keyList:['escape']}).length > 0) {
       return quitPsychoJS('The [Escape] key was pressed. Goodbye!', false);
@@ -425,6 +479,13 @@ function beginRoutineEnd() {
         thisComponent.setAutoDraw(false);
       }
     });
+    slide.autoDraw = false;
+    NEXT.autoDraw = false;
+    NEXT.pos = NEXT_POS;
+    if (USE_AUDIO) {
+        SOUND.stop();
+    }
+    
     // the Routine "begin" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset();
     
@@ -485,9 +546,6 @@ var idx;
 var idx_prev;
 var play_6b_once;
 var auto_9_once;
-var aud_file;
-var SOUND_DUR;
-var SOUND_T;
 var trialComponents;
 function trialRoutineBegin(snapshot) {
   return async function () {
@@ -517,6 +575,7 @@ function trialRoutineBegin(snapshot) {
     idx = 0;
     idx_prev = null;
     slides[idx].autoDraw = true;
+    NEXT.pos = NEXT_POS;
     NEXT.opacity = ((n_slides > 1) ? 1 : 0.1);
     NEXT.autoDraw = true;
     if (USE_AUDIO) {
@@ -666,7 +725,7 @@ function trialRoutineEachFrame() {
             cimg = _pj_a[_pj_c];
             if (cimg.contains(MOUSE)) {
                 mouse_over = cimg.name;
-                cimg.opacity = 1;
+                cimg.opacity = BOUND_BOX_OPACITY;
             } else {
                 cimg.opacity = CLICK_BOX_OPACITY;
             }
