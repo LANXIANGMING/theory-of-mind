@@ -20,6 +20,6 @@ testQn                | test question number
 qnText                | question text (for convenience)
 corrAns1              | correct answer
 corrAns2              | alternate correct answer
-ID                    | participant ID
+participant           | participant ID
 Debug                 | enable debug mode
 
